@@ -1,0 +1,50 @@
+stop-all.sh
+hadoop namenode -format
+start-all.sh
+hive
+show databases;
+create database dbl;
+use dbl;
+create table flight (fno int, year int, dest varchar(10), delay float );
+alter table flight rename to air_flight;
+alter table air_flight add columns (new_coll varchar(10), new_col2 varchar(10));
+#we can modify only one column at a time
+alter table air_flight change new_coll new_sourcel varchar(15);
+#drop columns; list the columns which you want to keep, no direct drop column command
+alter table air_flight replace columns (fno int, year int, dest varchar(20), delay float);
+drop table air_flight;
+create database mydb;
+use mydb;
+create table flight (fno int, year int, dest varchar(10), delay float) row format delimited
+fields terminated by','
+lines terminated by "\n' stored as textfile;
+desc flight;
+#copy this complete block of insert commands as #it is and paste at hive prompt
+insert into flight values (110, 2008, "Banglore", 30.0);
+insert into flight values (111, 2008, "Pune", 40.0);
+insert into flight values (112, 2008, "Mumbai", 50.0);
+insert into flight values (113, 2008, "Banglore", 60.0);
+insert into flight values (114, 2009, "Pune", 70.0);
+insert into flight values (115, 2009, "Mumbai", 80.0);
+select from flight;
+# how to load data from a text or csv file into hive table: Below is the syntax to do this
+#Load Data Statement
+load data local inpath "/home/mangal/flight_data.txt" overwrite into table flight;
+hadoop fs -ls/
+load data inpath "/my_dir_in_hadoop/flight_data.txt" into table flight;
+select from flight:
+#create new table create table nflight (fno, year int, new_source varchar(10)) row format delimited
+fields terminated by',' lines terminated by 'n' stored as textfile;
+insert into nflight values (110, 2021, 'Pune');
+insert into nflight values (111, 2022, 'Pune');
+insert into nflight values (112, 2023, 'Pune');
+# joining table select a.fno, a.year, a.dest, a.delay, b.source from flight a join nflight b on
+(a.fnob.fno);
+#create index
+create index flight_index on table flight (fno) as
+'org.apache.hadoop.hive.ql.index.compact.CompactIndexHandler' WITH DEFERRED REBUILD;
+show tables;
+# sample query
+# find the average departure delay per day in year 2008
+exit; #to leave hive
+select avg(delay) from flight where year = 2008;
